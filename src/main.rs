@@ -13,7 +13,7 @@ fn main() {
     println!("{:?}", node);
 
     // Test Html Parser
-    let source = "<div><div a=b>123</div><div>456</div></div>";
+    let source = "<div><div a=\"b\">123</div><div>456</div></div>";
     let node = html::parse(source.to_string());
 
     println!("html 格式化后: {:?}", node);

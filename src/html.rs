@@ -86,7 +86,9 @@ impl Parser {
     fn parse_attr(&mut self) -> (String, String) {
         let name = self.parse_tag_name();
         assert_eq!(self.consume_char(), '=');
+        assert_eq!(self.consume_char(), '"');
         let value = self.parse_tag_name();
+        assert_eq!(self.consume_char(), '"');
 
         return (name, value);
     }
