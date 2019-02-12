@@ -4,11 +4,34 @@ use super::css::{ Selector, SimpleSelector, Rule, Specificity, Stylesheet, Value
 
 pub type PropertyMap = HashMap<String, Value>;
 
+pub enum Display {
+    Inline,
+    Block,
+    None,
+}
+
 #[derive(Debug)]
 pub struct StyleNode<'a> {
     pub node: &'a Node,
     pub specified_values: PropertyMap,
     pub children: Vec<StyleNode<'a>>,
+}
+
+impl<'a> StyleNode<'a> {
+    fn value(&self, name: &str) -> Option<Value> {
+        self.specified_values.get(name).map(|v| v.clone())
+    }
+
+    pub fn display(&self) -> Display {
+        match self.value("display") {
+            Some(Value::Keyword(s)) => match &*s {
+                "block" => Display::Block,
+                "none" => Display::None,
+                _ => Display::Inline,
+            },
+            _ => Display::Inline
+        }
+    }
 }
 
 pub fn style_tree<'a>(root: &'a Node, stylesheet: &'a Stylesheet) -> StyleNode<'a> {

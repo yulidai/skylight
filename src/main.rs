@@ -4,6 +4,7 @@ mod dom;
 mod html;
 mod css;
 mod style;
+mod layout;
 
 fn main() {
     println!("Hello, world!");
@@ -28,4 +29,8 @@ fn main() {
     // Test Style Module
     let style_tree_result = style::style_tree(&node, &stylesheet);
     println!("Style Tree 格式化后: {:?}", style_tree_result);
+
+    // Test Layout Module
+    let layout_tree = layout::layout_tree(&style_tree_result);
+    println!("Layout Tree 格式化后: {:?}", layout_tree);
 }
