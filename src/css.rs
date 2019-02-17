@@ -29,19 +29,19 @@ pub struct Declaration {
     pub value: Value,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Value {
     Keyword(String),
     Length(f32, Unit),
     ColorValue(Color)
 }
 
-#[derive(Debug, Clone)]
-enum Unit {
+#[derive(Debug, Clone, PartialEq)]
+pub enum Unit {
     Px,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 struct Color {
     r: u8,
     g: u8,
@@ -59,6 +59,15 @@ impl Selector {
         let c = simple.tag_name.iter().count();
 
         return (a, b, c);
+    }
+}
+
+impl Value {
+    pub fn to_px(&self) -> f32 {
+        match *self {
+            Value::Length(f, Unit::Px) => f,
+            _ => 0.0,
+        }
     }
 }
 
