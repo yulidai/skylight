@@ -36,17 +36,17 @@ pub enum Value {
     ColorValue(Color)
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub enum Unit {
     Px,
 }
 
-#[derive(Debug, Clone, PartialEq)]
-struct Color {
-    r: u8,
-    g: u8,
-    b: u8,
-    a: u8,
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub struct Color {
+    pub r: u8,
+    pub g: u8,
+    pub b: u8,
+    pub a: u8,
 }
 
 pub type Specificity = (usize, usize, usize);

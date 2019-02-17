@@ -5,3 +5,4 @@ authors = ["leedy <yulidaiahx@163.com>"]
 edition = "2018"
 
 [dependencies]
+image = "*"

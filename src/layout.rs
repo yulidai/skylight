@@ -1,6 +1,8 @@
 use super::style::{ StyleNode, Display };
 use super::css::{ Value, Unit };
 
+pub use self::BoxType::{AnonymousBlock, InlineNode, BlockNode};
+
 // data struct
 #[derive(Debug)]
 pub struct LayoutBox<'a> {
@@ -18,31 +20,41 @@ pub enum BoxType<'a> {
 
 #[derive(Debug, Default, Copy, Clone)]
 pub struct Dimensions {
-    content: Rect,
+    pub content: Rect,
 
-    padding: EdgeSizes,
-    margin: EdgeSizes,
-    border: EdgeSizes,
+    pub padding: EdgeSizes,
+    pub margin: EdgeSizes,
+    pub border: EdgeSizes,
 }
 
 #[derive(Debug, Default, Copy, Clone)]
-struct Rect {
-    x: f32,
-    y: f32,
-    width: f32,
-    height: f32,
+pub struct Rect {
+    pub x: f32,
+    pub y: f32,
+    pub width: f32,
+    pub height: f32,
 }
 
 #[derive(Debug, Default, Copy, Clone)]
-struct EdgeSizes {
-    left: f32,
-    right: f32,
-    top: f32,
-    bottom: f32,
+pub struct EdgeSizes {
+    pub left: f32,
+    pub right: f32,
+    pub top: f32,
+    pub bottom: f32,
+}
+
+pub fn layout_tree<'a>(node: &'a StyleNode<'a>, mut containing_block: Dimensions) -> LayoutBox<'a> {
+    // The layout algorithm expects the container height to start at 0.
+    // TODO: Save the initial containing block height, for calculating percent heights.
+    containing_block.content.height = 0.0;
+
+    let mut root_box = build_layout_tree(node);
+    root_box.layout(containing_block);
+    root_box
 }
 
 // create layout tree
-pub fn layout_tree<'a>(style_node: &'a StyleNode) -> LayoutBox<'a> {
+pub fn build_layout_tree<'a>(style_node: &'a StyleNode) -> LayoutBox<'a> {
     let mut root = LayoutBox::new( match style_node.display() {
         Display::Block => BoxType::BlockNode(style_node),
         Display::Inline => BoxType::InlineNode(style_node),
@@ -51,8 +63,8 @@ pub fn layout_tree<'a>(style_node: &'a StyleNode) -> LayoutBox<'a> {
 
     for child in &style_node.children {
         match child.display() {
-            Display::Block => root.children.push(layout_tree(child)),
-            Display::Inline => root.get_inline_container().children.push(layout_tree(child)),
+            Display::Block => root.children.push(build_layout_tree(child)),
+            Display::Inline => root.get_inline_container().children.push(build_layout_tree(child)),
             _ => {}
         }
     }
@@ -72,15 +84,15 @@ impl Rect {
 }
 
 impl Dimensions {
-    fn padding_box(self) -> Rect {
+    pub fn padding_box(self) -> Rect {
         self.content.expanded_by(self.padding)
     }
 
-    fn border_box(self) -> Rect {
+    pub fn border_box(self) -> Rect {
         self.padding_box().expanded_by(self.border)
     }
 
-    fn margin_box(self) -> Rect {
+    pub fn margin_box(self) -> Rect {
         self.border_box().expanded_by(self.margin)
     }
 }
@@ -212,7 +224,7 @@ impl<'a> LayoutBox<'a> {
 
     fn calculate_block_position(&mut self, container_block: Dimensions) {
         let style = self.get_style_node();
-        let mut d = self.dimensions;
+        let d = &mut self.dimensions;
 
         let zero = Value::Length(0.0, Unit::Px);
 
